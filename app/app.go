@@ -53,7 +53,7 @@ var (
 		staking.AppModuleBasic{},
 		mint.AppModuleBasic{},
 		distr.AppModuleBasic{},
-		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler),
+		gov.NewAppModuleBasic(paramsclient.ProposalHandler, distr.ProposalHandler, distr.StakeIssueLockedProposalHandler), //HashGard
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
 		slashing.AppModuleBasic{},
@@ -159,14 +159,15 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 	crisisSubspace := app.paramsKeeper.Subspace(crisis.DefaultParamspace)
 	//HashGard
 	migrateSubspace := app.paramsKeeper.Subspace(migrate.DefaultParamspace)
-
+	// HashGard
+	app.sceneKeeper = scene.NewKeeper(app.cdc, keys[scene.StoreKey])
 	// add keepers
 	app.accountKeeper = auth.NewAccountKeeper(app.cdc, keys[auth.StoreKey], authSubspace, auth.ProtoBaseAccount)
 	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper, bankSubspace, bank.DefaultCodespace, app.ModuleAccountAddrs())
 	app.supplyKeeper = supply.NewKeeper(app.cdc, keys[supply.StoreKey], app.accountKeeper, app.bankKeeper, maccPerms)
-	stakingKeeper := staking.NewKeeper(
+	stakingKeeper := staking.NewKeeperBank(
 		app.cdc, keys[staking.StoreKey], tkeys[staking.TStoreKey],
-		app.supplyKeeper, stakingSubspace, staking.DefaultCodespace,
+		app.supplyKeeper, app.bankKeeper, app.sceneKeeper, stakingSubspace, staking.DefaultCodespace,
 	)
 	// HashGard
 	app.mintKeeper = mint.NewKeeper(app.cdc, keys[mint.StoreKey], mintSubspace, &stakingKeeper, app.supplyKeeper, app.bankKeeper, auth.FeeCollectorName)
@@ -192,8 +193,6 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 	app.stakingKeeper = *stakingKeeper.SetHooks(
 		staking.NewMultiStakingHooks(app.distrKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
-	// HashGard
-	app.sceneKeeper = scene.NewKeeper(app.cdc, keys[scene.StoreKey])
 	app.migrateKeeper = migrate.NewKeeper(app.cdc, keys[migrate.StoreKey], migrateSubspace, app.bankKeeper, app.supplyKeeper, app.sceneKeeper)
 	app.grid999Keeper = grid999.NewKeeper(app.cdc, keys[grid999.StoreKey], app.bankKeeper, app.sceneKeeper)
 	// NOTE: Any module instantiated in the module manager that is later modified

@@ -35,6 +35,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Released]
 
+## [v2.0.2] - 2020-08-28
+
+* (sdk) Bump Hashgard-SDK version to [v0.37.2](https://github.com/hashgard/hashgard-sdk/releases/tag/v0.37.2).
+
 ## [v2.0.0] - 2020-08-06
 
 * (sdk) Bump Hashgard-SDK version to [v0.37.0](https://github.com/hashgard/hashgard-sdk/releases/tag/v0.37.0).
