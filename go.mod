@@ -2,7 +2,7 @@ module github.com/hashgard/hashgard
 
 go 1.13
 
-replace github.com/cosmos/cosmos-sdk => github.com/hashgard/hashgard-sdk v0.37.2
+replace github.com/cosmos/cosmos-sdk => github.com/hashgard/hashgard-sdk v0.37.3
 
 //replace github.com/cosmos/cosmos-sdk => ../hashgard-sdk
 
